@@ -1,0 +1,214 @@
+<!doctype html>
+<!-- Vị trí file: wp-content/gb-tools/encoding-security/ma-hoa-giai-ma-base64.html -->
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Công cụ mã hóa và giải mã Base64 online - Base64 Encoder/Decoder</title>
+<meta name="description" content="Mã hóa văn bản thành chuỗi Base64 hoặc giải mã chuỗi Base64 về văn bản gốc nhanh chóng, bảo mật trực tiếp trên trình duyệt.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+<style type="text/tailwindcss">
+  @theme {
+    --font-sans: Roboto, ui-sans-serif, system-ui, sans-serif;
+    --color-primary: #fdca1e; --color-primary-hover: #e8b008; --color-primary-soft: #fffbeb;
+    --color-primary-ink: #9c6406; --color-ink: #0f172a; --color-neutral: #e2e8f0;
+  }
+</style>
+</head>
+<body class="bg-white font-sans text-ink antialiased">
+<main class="mx-auto max-w-4xl p-4 sm:p-6 space-y-6">
+  
+  <div class="bg-white border border-neutral rounded-2xl p-6 shadow-xs space-y-6">
+    
+    <!-- Hàng nút chọn chế độ: Mã Hóa / Giải Mã -->
+    <div class="flex gap-2">
+      <button type="button" id="btnModeEncode" onclick="setMode('encode')" class="px-5 py-2 rounded-full font-bold text-xs bg-primary text-ink shadow-xs cursor-pointer transition-colors">Mã Hóa</button>
+      <button type="button" id="btnModeDecode" onclick="setMode('decode')" class="px-5 py-2 rounded-full font-bold text-xs bg-slate-100 text-slate-700 hover:bg-amber-50 cursor-pointer transition-colors">Giải Mã</button>
+    </div>
+
+    <!-- Ô nhập văn bản (Đầu vào) -->
+    <div class="space-y-2">
+      <div id="inputLabel" class="font-bold text-sm text-ink">Văn bản cần mã hóa</div>
+      <textarea id="inputText" rows="6" oninput="processBase64()" placeholder="Nhập văn bản vào đây..." class="w-full rounded-xl border border-neutral p-3.5 text-sm font-mono outline-none focus:border-primary bg-white resize-y leading-relaxed"></textarea>
+      <div class="text-xs text-slate-400 font-mono">
+        <span id="inputCharCount">0</span> ký tự · <span id="inputLineCount">0</span> dòng · <span id="inputByteCount">0</span> byte
+      </div>
+    </div>
+
+    <!-- Hàng nút hành động thao tác -->
+    <div class="flex flex-wrap items-center gap-2 pt-1">
+      <button type="button" id="btnActionLabel" onclick="processBase64()" class="min-h-10 rounded-xl bg-primary px-4 font-bold text-xs text-ink hover:bg-primary-hover shadow-xs cursor-pointer flex items-center gap-2">
+        <span>Mã hóa</span>
+      </button>
+      <div class="hidden sm:flex items-center text-xs text-slate-500 font-mono bg-slate-100 border border-neutral px-2.5 py-2 rounded-xl">
+        <span>Ctrl</span>&nbsp;+&nbsp;<span>Enter</span>
+      </div>
+      <button type="button" onclick="swapText()" class="min-h-10 rounded-xl border border-neutral px-4 font-semibold text-xs hover:border-primary bg-slate-100 cursor-pointer">
+        Tráo đổi
+      </button>
+      <button type="button" onclick="copyOutput()" class="min-h-10 rounded-xl bg-primary px-4 font-bold text-xs text-ink hover:bg-primary-hover shadow-xs cursor-pointer flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        Sao chép
+      </button>
+      <button type="button" onclick="downloadOutput()" class="min-h-10 rounded-xl bg-primary px-4 font-bold text-xs text-ink hover:bg-primary-hover shadow-xs cursor-pointer flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Tải xuống
+      </button>
+      <button type="button" onclick="shareOutput()" class="min-h-10 rounded-xl border border-neutral px-4 font-semibold text-xs hover:border-primary bg-slate-100 cursor-pointer">
+        Chia sẻ
+      </button>
+      <button type="button" onclick="resetDefault()" class="min-h-10 rounded-xl border border-neutral px-4 font-semibold text-xs hover:border-primary bg-slate-100 cursor-pointer">
+        Cài lại
+      </button>
+    </div>
+
+    <!-- Ô kết quả đầu ra -->
+    <div class="space-y-2 pt-2 border-t border-neutral">
+      <div class="font-bold text-sm text-ink">Kết quả</div>
+      <textarea id="outputText" rows="6" readonly placeholder="Kết quả sẽ hiển thị ở đây..." class="w-full rounded-xl border border-neutral p-3.5 text-sm font-mono outline-none bg-slate-50 resize-y leading-relaxed select-all"></textarea>
+      <div class="flex justify-between items-center text-xs text-slate-400 font-mono">
+        <div><span id="outputCharCount">0</span> ký tự · <span id="outputByteCount">0</span> byte</div>
+        <div>Tỷ lệ: <span id="outputRatio">100,0</span> %</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  let currentMode = 'encode'; // Mặc định là mã hóa
+
+  async function gbCopy(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove(); return ok;
+  }
+
+  function gbDownload(data, filename, type = 'application/octet-stream') {
+    const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data], { type }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: filename });
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function setMode(mode, skipProcess = false) {
+    currentMode = mode;
+    const btnEncode = document.getElementById('btnModeEncode');
+    const btnDecode = document.getElementById('btnModeDecode');
+    const inputLabel = document.getElementById('inputLabel');
+    const btnAction = document.getElementById('btnActionLabel').querySelector('span');
+
+    if (mode === 'encode') {
+      btnEncode.className = 'px-5 py-2 rounded-full font-bold text-xs bg-primary text-ink shadow-xs cursor-pointer transition-colors';
+      btnDecode.className = 'px-5 py-2 rounded-full font-bold text-xs bg-slate-100 text-slate-700 hover:bg-amber-50 cursor-pointer transition-colors';
+      inputLabel.textContent = 'Văn bản cần mã hóa';
+      btnAction.textContent = 'Mã hóa';
+    } else {
+      btnDecode.className = 'px-5 py-2 rounded-full font-bold text-xs bg-primary text-ink shadow-xs cursor-pointer transition-colors';
+      btnEncode.className = 'px-5 py-2 rounded-full font-bold text-xs bg-slate-100 text-slate-700 hover:bg-amber-50 cursor-pointer transition-colors';
+      inputLabel.textContent = 'Chuỗi Base64 cần giải mã';
+      btnAction.textContent = 'Giải mã';
+    }
+    if (!skipProcess) {
+      processBase64();
+    }
+  }
+
+  function processBase64() {
+    const text = document.getElementById('inputText').value;
+    
+    // Thống kê đầu vào
+    const encoder = new TextEncoder();
+    const inputBytes = encoder.encode(text);
+    const lineCount = text ? text.split('\n').length : 0;
+    
+    document.getElementById('inputCharCount').textContent = text.length;
+    document.getElementById('inputLineCount').textContent = lineCount;
+    document.getElementById('inputByteCount').textContent = inputBytes.length;
+
+    let result = '';
+    try {
+      if (currentMode === 'encode') {
+        result = btoa(encodeURIComponent(text).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+          return String.fromCharCode('0x' + p1);
+        }));
+      } else {
+        let decodedBytes = atob(text.trim());
+        result = decodeURIComponent(decodedBytes.split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+      }
+    } catch (e) {
+      result = currentMode === 'decode' ? 'Lỗi: Chuỗi định dạng Base64 không hợp lệ!' : 'Lỗi mã hóa dữ liệu!';
+    }
+
+    document.getElementById('outputText').value = result;
+
+    // Thống kê đầu ra
+    const outputBytes = encoder.encode(result);
+    document.getElementById('outputCharCount').textContent = result.length;
+    document.getElementById('outputByteCount').textContent = outputBytes.length;
+
+    let ratio = inputBytes.length > 0 ? ((outputBytes.length / inputBytes.length) * 100).toFixed(1).replace('.', ',') : '100,0';
+    document.getElementById('outputRatio').textContent = ratio;
+  }
+
+  function swapText() {
+    const outVal = document.getElementById('outputText').value;
+    if (!outVal || outVal.startsWith('Lỗi')) return;
+
+    // Lấy nội dung kết quả đưa lên ô nhập
+    document.getElementById('inputText').value = outVal;
+    
+    // Đảo ngược chế độ (Encode thành Decode, hoặc Decode thành Encode) mà không reset giá trị vừa gán
+    const newMode = currentMode === 'encode' ? 'decode' : 'encode';
+    setMode(newMode, true); // true để bỏ qua việc process lại bằng text cũ, rồi chạy process với text mới ở dưới
+
+    processBase64();
+  }
+
+  async function copyOutput() {
+    const val = document.getElementById('outputText').value;
+    if (!val || val.startsWith('Lỗi')) return;
+    const ok = await gbCopy(val);
+    if (ok) alert('Đã sao chép kết quả vào bộ nhớ tạm!');
+  }
+
+  function downloadOutput() {
+    const val = document.getElementById('outputText').value;
+    if (!val || val.startsWith('Lỗi')) return;
+    const blob = new Blob([val], { type: 'text/plain;charset=utf-8' });
+    gbDownload(blob, 'base64-result.txt');
+  }
+
+  async function shareOutput() {
+    const val = document.getElementById('outputText').value;
+    if (!val || val.startsWith('Lỗi')) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Base64 Result', text: val });
+      } catch (e) {}
+    } else {
+      copyOutput();
+    }
+  }
+
+  function resetDefault() {
+    document.getElementById('inputText').value = '';
+    processBase64();
+  }
+
+  // Hỗ trợ phím tắt Ctrl + Enter để thực thi nhanh
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      processBase64();
+    }
+  });
+
+  // Khởi tạo chạy lần đầu
+  processBase64();
+</script>
+</body>
+</html>
